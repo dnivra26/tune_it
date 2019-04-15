@@ -39,7 +39,8 @@ class App extends Component {
     if(pitch !== null) {
       const closestFrequency = this.findClosest(pitch);
       const closestNote = frequency2note[closestFrequency];
-      this.setState({note: closestNote});
+      const percentage = this.getPercentage(closestFrequency, pitch)
+      this.setState({note: closestNote, pitch, difference: closestFrequency - pitch, percentage, closestFrequency});
     }
   }
   findClosest(frequency){
@@ -47,14 +48,30 @@ class App extends Component {
       return (Math.abs(curr - frequency) < Math.abs(prev - frequency) ? curr : prev);
     });
   }
+  getPercentage(closestNote, pitch){
+    const difference = closestNote - pitch
+    if(difference > 0) {
+      const previousNote = closestNote/(2^(1/12))
+      return "+" + parseFloat(100 - ((pitch-previousNote)/(closestNote-previousNote))*100).toFixed(2)
+    } else if(difference < 0) {
+      const nextNote = closestNote*(2^(1/12))
+      return "-" + parseFloat(((pitch-closestNote)/(nextNote-closestNote))*100).toFixed(2)
+    } else {
+      return 0;
+    }
+  }
   render() {
-    this.detectPitch();
+    // this.detectPitch();
 
     return (
       <div className="App">
         <header className="App-header">
-          Tune It
-          {this.state.note}
+          <button onClick={() => this.detectPitch()}> Tune It </button><br/>
+          Note: {this.state.note} <br/>
+          Difference: {this.state.difference} <br/>
+          percentage: {this.state.percentage} <br/>
+          Pitch: {this.state.pitch} <br/>
+          Closest: {this.state.closestFrequency} <br/>
         </header>
       </div>
     );
